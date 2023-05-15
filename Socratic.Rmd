@@ -1,0 +1,301 @@
+---
+title: "Visualizing the Socratic Method"
+author: "Alex Lundry"
+date: "2023-05-14"
+output: xaringan::moon_reader
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+# Load libraries
+library(tidyverse)
+library(ggplot2)
+```
+
+# What Is The Socratic Method?
+
+.pull-left[
+- A teaching method in which students are asked questions that inspire critical thought, leading to a deeper understanding of the material compared to other pedagogical methods.  
+- The chart below demonstrates how a student's depth of understanding is inherently related to the number of questions asked and corresponding answers provided by the student.  
+]
+
+.pull-right[
+```{r}
+# Create a dataframe
+depth_understanding <- tibble(
+  time = 1:10,
+  understanding = c(1, 2, 4, 6, 9, 12, 16, 20, 25, 30)
+)
+
+# Plot
+ggplot(depth_understanding, aes(x = time, y = understanding)) +
+  geom_area(fill = "skyblue") +
+  scale_x_continuous(breaks = 1:10) +
+  labs(x = "Questions Asked of Student", y = "Depth of Student's Understanding", 
+       title = "Understanding Growth in Socratic Dialogue")
+```
+]
+---
+
+# Understanding vs. Misunderstanding
+.pull-left[
+- Another way to think of the value of asking questions is that it can help clarify and grow what the student understands about the issue, while reducing their misunderstanding over time.  
+- The more time that passes, and the more questions that are asked and answered, the more that understanding overtakes misunderstanding.
+]
+
+.pull-right[
+```{r}
+# Create a dataframe
+understanding <- tibble(
+  time = 1:10,
+  understanding = c(1, 2, 4, 6, 8, 10, 12, 14, 16, 18),
+  misunderstanding = c(10, 9, 7, 5, 3, 2, 1, 0.5, 0.3, 0.1)
+)
+
+# Plot
+ggplot(understanding, aes(x = time)) +
+  geom_area(aes(y = understanding), fill = "blue") +
+  geom_area(aes(y = misunderstanding), fill = "red", alpha = 0.9) +
+  labs(x = "Time", y = "Level", title = "Understanding vs Misunderstanding Over Time") +
+  scale_x_continuous(breaks = rep(1:10))
+```
+]
+---
+# Why the Open-Ended Questions?
+
+.pull-left[
+- It's been many years since an adult was in an introductory/proficiency curriculum, so they aren't used to open-ended questions
+- But when they were children, they easily answered those types of questions.  
+- Open ended questions encourage curiosity and provoke a desire for deeper meaning.
+]
+
+.pull-right[
+```{r}
+# Create the data frame
+df <- data.frame(
+  group = c("Children", "Adults"),
+  ease_of_answers = c(90, 10)
+)
+
+# Plot using ggplot
+ggplot(df, aes(x = group, y = ease_of_answers, fill = group)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(x = "Type of Learner", y = "Ease of Answers to Open-Ended Questions", title = "Children Easily Provide Answers to Open Ended Questions") +
+  theme_minimal() +
+  coord_flip()
+
+```
+]
+---
+
+# Questions versus Answers Scatter plot
+
+.pull-left[
+- In today's world, adults tend to ask few questions, but provide many answers  
+- Versus children who tend to ask many questions, but also have no problem providing many answers.
+- In an ideal Socratic method, adults will ask more and better questions, while also opening themselves up to answering open ended questions.
+]
+
+.pull-right[
+```{r}
+# Define the number of data points per group
+n <- 100
+
+# Generate the data frame
+df <- tibble(
+  questions = c(rnorm(n, 30, 10), rnorm(n, 70, 10), rnorm(n, 30, 10), rnorm(n, 70, 10)),
+  answers = c(rnorm(n, 70, 10), rnorm(n, 70, 10), rnorm(n, 30, 10), rnorm(n, 30, 10)),
+  group = rep(c("Adults", "Children", "???", "Teenagers"), each = n)
+)
+
+# Plot
+ggplot(df, aes(x = questions, y = answers, color = group)) +
+  geom_point(show.legend = FALSE) +
+  scale_color_brewer(palette = "Set1") +
+  geom_vline(xintercept = 50, linetype = "solid", color = "black") +  # Add vertical reference line
+  geom_hline(yintercept = 50, linetype = "solid", color = "black") +  # Add horizontal reference line
+  geom_label(
+    data = data.frame(x = c(30, 80, 30, 80), y = c(70, 70, 30, 30), label = c(str_wrap("Adults: Few Q's, Many A's", 10), 
+                                                                              str_wrap("Children: Many Q's, Many A's", 10),
+                                                                              str_wrap("???: Few Q's, Few A's", 10), 
+                                                                              str_wrap("Teenagers: Many Q's, Few A's", 10))),
+    aes(x = x, y = y, label = label),
+    color = "black", fill = "yellow", size = 3, hjust = c(1, 1, 0, 0), vjust = c(1, 1, 0, 0)
+  ) +
+  # annotate("text", x = 20, y = 80, label = "Adults: Few Q's, Many A's") +
+  # annotate("text", x = 80, y = 80, label = "Children: Many Q's, Many A's") +
+  # annotate("text", x = 20, y = 20, label = "Elderly: Few Q's, Few A's") +
+  # annotate("text", x = 80, y = 20, label = "Teenagers: Many Q's, Few A's") +
+  labs(x = "Questions Asked", y = "Answers Provided", title = "Distribution of Questions and Answers", color = "Group")
+```
+]
+---
+
+# Trial and Error
+
+.pull-left[
+- Adult learners should be unafraid to provide risky answers!  
+- It is far more valuable to be curious and wrong than to be simple-minded and right.
+- They don't call it trial and success!
+- The chart below shows that a student who encounters but successes AND errors will learn the material more over time compared to a student who limits themselves by playing it safe, providing cautiously correct answers or who steers the teacher into giving them the answer.
+]
+
+.pull-right[
+```{r}
+## Faceted plot of trial and errors
+# Define the number of data points
+n <- 200
+
+# Generate the data frame for Student 1
+df1 <- tibble(
+  effort = rnorm(n, 50, 10),
+  learning = 0.8 * effort + rnorm(n, 0, 10),
+  student = rep("Student 1", n)
+)
+
+# Add some "errors" to the data
+set.seed(123)
+error_indices <- sample(1:n, size = n/5)
+df1$error <- rep(FALSE, n)
+df1$error[error_indices] <- TRUE
+df1$learning[error_indices] <- df1$learning[error_indices] - runif(length(error_indices), 10, 20)
+
+# Generate the data frame for Student 2
+df2 <- tibble(
+  effort = rnorm(n, 50, 10),
+  learning = 0.4 * effort + rnorm(n, 0, 10),  # Lower the slope to make the trend line less steep
+  student = rep("Student 2", n),
+  error = FALSE
+)
+
+# Combine the two data frames
+df <- bind_rows(df1, df2)
+
+# Plot
+ggplot(df, aes(x = effort, y = learning, color = error)) +
+  geom_point() +
+  scale_color_manual(values = c("darkblue", "red"), labels = c("Success", "Error")) +
+  geom_smooth(method = "lm", se = FALSE, color = "darkgreen") +
+  facet_wrap(~student, ncol = 2) +
+  labs(x = "Effort", y = "Learning", color = "Trial Type",
+       title = "Learning Through Trial and Error vs Trial and Success")
+```
+]
+---
+
+# Answering Questions
+
+.pull-left[
+- Ok, so I'm unafraid to answer questions now!
+- But how do I answer them??
+- Follow the steps below...
+]
+
+.pull-right[
+```{r}
+df_steps <- tibble(
+  Component = factor(c("Quick Response", "Start with Obvious", "Relate to Lessons", "Identify Unknowns"), 
+                levels = c("Quick Response", "Start with Obvious", "Relate to Lessons", "Identify Unknowns")),
+  Step = c(1, 2, 3, 4)  # Arbitrary values
+)
+
+ggplot(df_steps, aes(x = Component, y = Step, fill = Component)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(x = "Component", y = "Step", 
+       title = "Process of Approaching an Open-Ended Question")
+
+```
+]
+---
+
+# Asking Appropriate Questions
+- Students are allowed to ask questions too! But don't make them bad ones.
+- Every day that I drop my kids off from school, I tell them to:
+-- Be a good friend, and...
+-- Ask good questions.
+- There are no stupid questions; any question is better than none.
+- But there are such things as GOOD questions.
+
+---
+
+# Asking Appropriate Questions
+
+.pull-left[
+- So how can you be sure you're asking an appropriate question?
+- The chart below shows the four key steps of asking appropriate questions
+]
+
+.pull-right[
+```{r}
+# Bar chart
+df_bar <- tibble(
+  Component = c("Statement of Perception", "Acknowledgement of Known/Unknown", "Demonstration of Curiosity", "Request for Clarification"),
+  Step = c(1, 2, 3, 4)  # Arbitrary values
+)
+
+# Reorder the factor levels of Component
+df_bar$Component <- factor(df_bar$Component, levels = c("Statement of Perception", "Acknowledgement of Known/Unknown", 
+                                                        "Demonstration of Curiosity", "Request for Clarification"))
+
+ggplot(df_bar, aes(x = fct_rev(Component), y = Step, fill = Component)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(x = "Components of an Appropriate Question", y = "Step", 
+       title = "Components of an Appropriate Question") +
+  coord_flip()
+
+```
+]
+
+---
+
+# How Most Students Think It Works
+
+.pull-left[
+- Many adult students think that the time needed for completion or absorption is a reflection of their intelligence.
+- The chart below depicts how they BELIEVE the time it takes them to gain competency is a direct downward function of how smart they are.
+- The longer it takes them, they believe, the less intelligent they are.
+]
+
+.pull-right[
+```{r}
+# Generate the data frame
+df <- tibble(
+  time_to_answer = seq(0, 100, length.out = 100),
+  perceived_intelligence = rev(seq(0, 100, length.out = 100))  # Generate sequence and reverse it to get a decreasing trend
+)
+
+# Plot
+ggplot(df, aes(x = time_to_answer, y = perceived_intelligence)) +
+  geom_line() +
+  labs(x = "Time to Absorption/Completion/Competence", y = "Perceived Intelligence", title = "Perceived Intelligence Over Time to Competence")
+```
+]
+---
+
+# You're Not Stupid For Needing To Take Your Time
+
+.pull-left[
+- But that's not how it works at all!
+- More time spent truly engaging the concept means you aren't settling for superficial understanding.
+- The longer you take, the deeper your comprehension.
+]
+
+.pull-right[
+```{r}
+# Define the number of data points
+n <- 100
+
+# Generate the data frame
+df <- tibble(
+  time_spent_learning = rnorm(n, 50, 10),
+  depth_of_understanding = 0.7 * time_spent_learning + rnorm(n, 0, 10)
+)
+
+# Plot
+ggplot(df, aes(x = time_spent_learning, y = depth_of_understanding)) +
+  geom_point(color = "darkblue") +
+  geom_smooth(method = "lm", se = FALSE, color = "darkgreen") +
+  labs(x = "Time Spent Absorbing", y = "Depth of Understanding", title = "Time Spent Absorbing vs Depth of Understanding")
+```
+]
